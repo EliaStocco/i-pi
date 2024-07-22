@@ -192,9 +192,11 @@ class InputDrivenDynamics(InputDynamics):
                 "default": "eda-nve",
                 "help": """The ensemble that will be sampled during the simulation.
                 eda-nve: nve with an external electric field;
+                eda-nvt: nvt with an external electric field;
                  """,
                 "options": [
                     "eda-nve",
+                    "eda-nvt",
                 ],
             },
         ),

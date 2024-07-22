@@ -8,7 +8,7 @@ import numpy as np
 
 from ipi.utils.depend import *
 from ipi.utils.units import Constants
-from ipi.engine.motion.dynamics import NVEIntegrator, DummyIntegrator, Dynamics
+from ipi.engine.motion.dynamics import NVEIntegrator, DummyIntegrator, Dynamics, NVTIntegrator
 from ipi.utils.units import UnitMap
 import re
 
@@ -38,7 +38,7 @@ class DrivenDynamics(Dynamics):
             effective classical temperature.
     """
 
-    driven_integrators = ["eda-nve"]
+    driven_integrators = ["eda-nve","eda-nvt"]
 
     def __init__(
         self,
@@ -60,6 +60,9 @@ class DrivenDynamics(Dynamics):
         if self.enstype == "eda-nve":
             # NVE integrator with an external time-dependent electric field
             self.integrator = EDANVEIntegrator()
+        elif self.enstype == "eda-nvt":
+            # NVE integrator with an external time-dependent electric field
+            self.integrator = EDANVTIntegrator()
         else:
             self.integrator = DummyIntegrator()
 
@@ -98,7 +101,7 @@ class EDAIntegrator(DummyIntegrator):
     def td_pstep(self, time, level=0):
         """Velocity Verlet momentum propagator with a time dependent force."""
         # This method adds the time-dependent force contribution to the momenta.
-        # and it is called only twice per MD step, as implemented in `EDANVEIntegrator.step`.
+        # and it is called only twice per MD step, as implemented in `EDANVEIntegrator.step` or `EDANVTIntegrator.step`.
 
         if level != 0:
             # A time-dependent force integrator is ill-defined in a MTS algorithm framework.
@@ -136,9 +139,21 @@ class EDANVEIntegrator(EDAIntegrator, NVEIntegrator):
         time = self.time + self.dt
         EDAIntegrator.td_pstep(self, time, 0)
 
+class EDANVTIntegrator(EDAIntegrator, NVTIntegrator):
+    """Integrator object for simulations with constant Number of particles, Volume, and Temperature (NVT)
+    using the Electric Dipole Approximation (EDA) when an external electric field is applied.
+    """
+
+    def step(self, step):
+        time = self.time
+        EDAIntegrator.td_pstep(self, time, 0)
+        NVTIntegrator.step(self, step)
+        time = self.time + self.dt
+        EDAIntegrator.td_pstep(self, time, 0)
+
 
 class BEC:
-    """Class to handle the Born Effective Charge tensors when performing driven dynamics (with 'eda-nve')"""
+    """Class to handle the Born Effective Charge tensors when performing driven dynamics (with 'eda-nve' and 'eda-nvt')"""
 
     # The BEC tensors Z^* are defined as the derivative of the electric dipole of the system w.r.t. nuclear positions
     # in units of the elementary charge, i.e. Z^*_{ij} = 1/q_e \frac{\partial d_i }{\partial R_j}
@@ -258,7 +273,7 @@ dproperties(BEC, ["bec"])
 
 
 class ElectricDipole:
-    """Class to handle the electric dipole of the system when performing driven dynamics (with 'eda-nve')"""
+    """Class to handle the electric dipole of the system when performing driven dynamics (with 'eda-nve' and 'eda-nvt')"""
 
     def __init__(self):
         pass
@@ -337,7 +352,7 @@ dproperties(ElectricDipole, ["dipole", "nbeads", "forces"])
 
 
 class ElectricField:
-    """Class to handle the time dependent electric field when performing driven dynamics (with 'eda-nve')"""
+    """Class to handle the time dependent electric field when performing driven dynamics (with 'eda-nve' and 'eda-nvt')"""
 
     def __init__(self, amp=None, freq=None, phase=None, peak=None, sigma=None):
         self._amp = depend_array(
