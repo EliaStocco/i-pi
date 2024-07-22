@@ -1,4 +1,4 @@
-i-PI: a Universal Force Engine
+i-PI: a Universal Force Engine (eda-nvt)
 ==============================
 
 A Python interface for ab initio path integral molecular dynamics simulations (and more).
