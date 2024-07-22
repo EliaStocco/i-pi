@@ -8,7 +8,12 @@ import numpy as np
 
 from ipi.utils.depend import *
 from ipi.utils.units import Constants
-from ipi.engine.motion.dynamics import NVEIntegrator, DummyIntegrator, Dynamics, NVTIntegrator
+from ipi.engine.motion.dynamics import (
+    NVEIntegrator,
+    DummyIntegrator,
+    Dynamics,
+    NVTIntegrator,
+)
 from ipi.utils.units import UnitMap
 import re
 
@@ -38,7 +43,7 @@ class DrivenDynamics(Dynamics):
             effective classical temperature.
     """
 
-    driven_integrators = ["eda-nve","eda-nvt"]
+    driven_integrators = ["eda-nve", "eda-nvt"]
 
     def __init__(
         self,
@@ -138,6 +143,7 @@ class EDANVEIntegrator(EDAIntegrator, NVEIntegrator):
         NVEIntegrator.step(self, step)
         time = self.time + self.dt
         EDAIntegrator.td_pstep(self, time, 0)
+
 
 class EDANVTIntegrator(EDAIntegrator, NVTIntegrator):
     """Integrator object for simulations with constant Number of particles, Volume, and Temperature (NVT)
