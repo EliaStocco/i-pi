@@ -243,8 +243,8 @@ class Simulation:
                         no.filename = s.prefix + "_" + no.filename
                     no.bind(s, mode)
                     self.outputs.append(no)
-                    if f_start:  # starting of simulation, print headers (if any)
-                        no.print_header()
+                    # if f_start:  # starting of simulation, print headers (if any)
+                    no.print_header()
                     isys += 1
 
         if self.threading:

@@ -11,7 +11,7 @@ and the restart files.
 import os
 
 import numpy as np
-
+from datetime import datetime
 from ipi.utils.messages import verbosity, info, warning
 from ipi.utils.units import unit_to_user
 from ipi.utils.softexit import softexit
@@ -188,6 +188,8 @@ class PropertyOutput(BaseOutput):
 
     def print_header(self):
         # print nice header if information is available on the properties
+        ohead = "# Date and Time: {}".format(datetime.now().strftime("%Y-%m-%d %H:%M"))
+        self.out.write(ohead + "\n")
         icol = 1
         for what in self.outlist:
             ohead = "# "
