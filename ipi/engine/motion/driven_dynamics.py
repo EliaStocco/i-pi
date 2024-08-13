@@ -118,6 +118,7 @@ class EDAIntegrator(DummyIntegrator):
 
         edaforces = self.EDAforces(time)
         self.beads.p += edaforces * self.pdt[level]
+        self.pconstraints()
 
         pass
 
@@ -250,7 +251,14 @@ class BEC:
                     msg
                     + ": BEC tensors with wrong shape. They should have 3 components."
                 )
-
+            sum_rule = np.asarray(bec.reshape((self.natoms, 3, 3)).sum(axis=0))
+            if not np.allclose(sum_rule, 0):
+                raise ValueError(
+                    msg
+                    + ": BEC tensors do not satisfy (charge conservation) sum rule. The sum over all the atoms should be zero, but is {}".format(
+                        sum_rule.flatten().tolist()
+                    )
+                )
             BEC[n, :, :] = np.copy(bec)
 
         return BEC

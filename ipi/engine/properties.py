@@ -327,6 +327,11 @@ class Properties:
                 "help": "The value of the conserved energy quantity per bead.",
                 "func": (lambda: self.ensemble.econs / float(self.beads.nbeads)),
             },
+            "energy": {
+                "dimension": "energy",
+                "help": "The value of the total energy per bead.",
+                "func": self.get_energy,
+            },
             "ensemble_lp": {
                 "dimension": "undefined",
                 "help": "The log of the ensemble probability",
@@ -369,13 +374,7 @@ class Properties:
                 "help": "The physical system potential energy.",
                 "longhelp": """The physical system potential energy. With the optional argument 'bead'
                          will print the potential associated with the specified bead.""",
-                "func": (
-                    lambda bead="-1": (
-                        self.forces.pot / self.beads.nbeads
-                        if int(bead) < 0
-                        else self.forces.pots[int(bead)]
-                    )
-                ),
+                "func": self.get_pot,
             },
             "bead_potentials": {
                 "dimension": "energy",
@@ -1458,6 +1457,19 @@ class Properties:
         v = v / self.beads.nbeads
 
         return PkT32 - spring + v
+
+    def get_energy(self, atom="", bead="", nm="", return_count=False):
+        """Calculates the physical system total energy as the sum of the potential and kinetic energies."""
+        kin = self.get_kinmd(atom, bead, nm, return_count)
+        pot = self.get_pot(atom, bead, nm, return_count)
+        return kin + pot
+
+    def get_pot(self, atom="", bead="-1", nm="", return_count=False):
+        """Calculates the physical system potential energy."""
+        if int(bead) < 0:
+            return self.forces.pot / self.beads.nbeads
+        else:
+            return self.forces.pots[int(bead)]
 
     def get_kinmd(self, atom="", bead="", nm="", return_count=False):
         """Calculates the classical kinetic energy of the simulation (p^2/2m)
