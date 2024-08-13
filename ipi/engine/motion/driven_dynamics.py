@@ -168,10 +168,10 @@ class BEC:
     # A tensor of this shape is stored for each bead --> self._bec.shape = (self.nbeads, 3 * self.natoms, 3)
     #
     # If an external time-dependent electric field E(t) is applied, this couples to the dipole of the system,
-    # and the resulting additional term to the forces is given by q_e Z^* @ E(t) --> have a look at EDAIntegrator._eda_forces
+    # and the resulting additional term to the forces is given by q_e Z^* @ E(t) --> have a look at EDAIntegrator.EDAforces
     #
-    # The BEC tensors Z^* can be given to i-PI by an external driver through the etxras strings in the forces
-    # of they can be kept fixed during the dynamics: in this case you can provide them through a txt file.
+    # The BEC tensors Z^* can be given to i-PI by an external driver through the extras strings in the forces
+    # or they can be kept fixed during the dynamics: in this case you can provide them through a txt file.
 
     def __init__(self, cbec=None, bec=None):
         self.cbec = cbec
@@ -243,7 +243,7 @@ class BEC:
             if bec.shape[0] != 3 * self.natoms:
                 raise ValueError(
                     msg
-                    + ": number of BEC tensors is not equal to the number fo atoms x 3."
+                    + ": number of BEC tensors is not equal to the number of atoms x 3."
                 )
             if bec.shape[1] != 3:
                 raise ValueError(
