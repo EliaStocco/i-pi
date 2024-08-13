@@ -287,13 +287,7 @@ class Properties:
                 "dimension": "atomic_unit",
                 "help": "The external applied electric field (x,y,z components in cartesian axes).",
                 "size": 3,
-                "func": (
-                    lambda: (
-                        self.motion.Electric_Field.Efield(self.ensemble.time)
-                        if isinstance(self.motion, DrivenDynamics)
-                        else np.zeros(3)
-                    )
-                ),
+                "func": self.get_Efield,
             },
             "Eenvelope": {
                 "dimension": "atomic_unit",
@@ -310,22 +304,17 @@ class Properties:
                 "dimension": "electric-dipole",
                 "help": "The electric dipole of the system (x,y,z components in cartesian axes).",
                 "size": 3,
-                "func": (
-                    lambda bead="-1": (
-                        self.motion.Electric_Dipole.dipole.mean(axis=0)
-                        if int(bead) < 0
-                        else (
-                            self.motion.Electric_Dipole.dipole[int(bead)]
-                            if isinstance(self.motion, DrivenDynamics)
-                            else np.zeros(3)
-                        )
-                    )
-                ),
+                "func": self.get_dipole,
             },
             "conserved": {
                 "dimension": "energy",
                 "help": "The value of the conserved energy quantity per bead.",
-                "func": (lambda: self.ensemble.econs / float(self.beads.nbeads)),
+                "func": self.get_conserved,
+            },
+            "Econserved": {
+                "dimension": "energy",
+                "help": "The value of the conserved energy quantity per bead when an external electric field is applied.",
+                "func": self.get_Econserved,
             },
             "energy": {
                 "dimension": "energy",
@@ -1458,6 +1447,34 @@ class Properties:
 
         return PkT32 - spring + v
 
+    def get_Efield(self, atom="", bead="", nm="", return_count=False):
+        """Returns the external electric field applied to the system."""
+        if isinstance(self.motion, DrivenDynamics):
+            return self.motion.Electric_Field.Efield(self.ensemble.time)
+        else:
+            return np.zeros(3)
+
+    def get_dipole(self, atom="", bead="", nm="", return_count=False):
+        """Returns the electric-dipole moment of the system."""
+        if bead == "" or int(bead) < 0:
+            return self.motion.Electric_Dipole.dipole.mean(axis=0)
+        elif isinstance(self.motion, DrivenDynamics):
+            return self.motion.Electric_Dipole.dipole[int(bead)]
+        else:
+            return np.zeros(3)
+
+    def get_conserved(self, atom="", bead="", nm="", return_count=False):
+        """Returns the conserved quantity of the system."""
+        return self.ensemble.econs / float(self.beads.nbeads)
+
+    def get_Econserved(self, atom="", bead="", nm="", return_count=False):
+        """Returns the conserved quantity of the system when an external electric field is applied."""
+        dipole = self.get_dipole(atom, bead, nm, return_count)
+        Efield = self.get_Efield(atom, bead, nm, return_count)
+        cons = self.get_conserved(atom, bead, nm, return_count)
+        eda = float(dipole @ Efield)
+        return cons + eda
+
     def get_energy(self, atom="", bead="", nm="", return_count=False):
         """Calculates the physical system total energy as the sum of the potential and kinetic energies."""
         kin = self.get_kinmd(atom, bead, nm, return_count)
@@ -1466,7 +1483,7 @@ class Properties:
 
     def get_pot(self, atom="", bead="-1", nm="", return_count=False):
         """Calculates the physical system potential energy."""
-        if int(bead) < 0:
+        if bead == "" or int(bead) < 0:
             return self.forces.pot / self.beads.nbeads
         else:
             return self.forces.pots[int(bead)]
