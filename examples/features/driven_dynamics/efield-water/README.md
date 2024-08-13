@@ -22,12 +22,12 @@ As you might have already understood, this approach relies on the approximation 
 #### Electric field
 The electric field-driving will be performed on top of a ```NVE``` simulation.
 In this case the adopted electric field is a **plane wave** with a **gaussian envelope function**.
-The **frequency** $\omega$ and **direction** $\hat{\mathbf{E}}_{amp}$ of the plane wave (```115THz``` along the ```y```-axis) are chose to be resonant with one of the three vibrational mode of the system.
-The **amplitude** $|\mathbf{E}_{amp}|$ of the field is chose to be not too intense.
+The **frequency** $\omega$ and **direction** $\hat{\mathbf{E}}_{\rm amp}$ of the plane wave (```115THz``` along the ```y```-axis) are chose to be resonant with one of the three vibrational mode of the system.
+The **amplitude** $|\mathbf{E}_{\rm amp}|$ of the field is chose to be not too intense.
 The gaussian envelope function is determined by its **mean** $\mu$ (when the electric field will reach its maximum value) and **std** $\sigma$ (the duration of the pulse).
 This is the analytic expression of the applied electric field is:
 $$
-\mathbf{E}\left(t\right) = \mathbf{E}_{amp}\cos \left( \omega t + \phi \right) \frac{1}{{\sigma \sqrt{2\pi}}} e^{-\frac{{(x - \mu)^2}}{{2\sigma^2}}}
+\mathbf{E}\left(t\right) = \mathbf{E}_{\rm amp}\cos \left( \omega t + \phi \right) e^{-\frac{{(x - \mu)^2}}{{2\sigma^2}}}
 $$
 
 The parameters that define the shape of the electric field are defined in the ```ensemble``` field in the ```input.xml``` file. 
