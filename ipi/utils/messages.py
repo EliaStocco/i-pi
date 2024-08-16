@@ -7,6 +7,11 @@
 
 import traceback
 import sys
+import subprocess
+import os
+import socket
+import platform
+import multiprocessing
 
 __all__ = ["Verbosity", "verbosity", "banner", "info", "warning"]
 
@@ -95,7 +100,81 @@ class Verbosity(object):
 
 verbosity = Verbosity()
 
+def get_git_info():
+    try:
+        # Get the current branch name
+        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
+        
+        # Get the last commit hash
+        last_commit = subprocess.check_output(["git", "log", "-1", "--format=%H"]).strip().decode('utf-8')
 
+        # Get the remote repository URL
+        remote_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"]).strip().decode('utf-8')
+
+        # Get commit author
+        commit_author = subprocess.check_output(["git", "log", "-1", "--format=%an"]).strip().decode('utf-8')
+
+        # Get commit date
+        # Get commit date in ISO 8601 format
+        commit_date = subprocess.check_output(["git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M:%S"]).strip().decode('utf-8')
+
+        # Get commit message
+        commit_message = subprocess.check_output(["git", "log", "-1", "--format=%s"]).strip().decode('utf-8')
+
+        return {
+            "branch_name": branch_name,
+            "last_commit": last_commit,
+            "remote_url": remote_url,
+            "commit_author": commit_author,
+            "commit_date": commit_date,
+            "commit_message": commit_message
+        }
+
+    except subprocess.CalledProcessError as e:
+        # Handle the case where the git command fails
+        return None
+
+def get_system_info():
+    try:
+        # Get the current working directory
+        current_folder = os.getcwd()
+
+        # Get the machine name (hostname)
+        machine_name = socket.gethostname()
+
+        # Get the system's fully qualified domain name (FQDN)
+        fqdn = socket.getfqdn()
+
+        # Get the operating system name
+        os_name = platform.system()
+
+        # Get the operating system version
+        os_version = platform.version()
+
+        # Get the processor name
+        processor = platform.processor()
+
+        # Get the number of CPUs or nodes available
+        num_nodes = multiprocessing.cpu_count()
+
+        # Get the user name
+        user_name = os.getlogin()
+
+        return {
+            "current_folder": current_folder,
+            "machine_name": machine_name,
+            "fqdn": fqdn,
+            "os_name": os_name,
+            "os_version": os_version,
+            "processor": processor,
+            "num_nodes": num_nodes,
+            "user_name": user_name
+        }
+
+    except Exception as e:
+        # Handle any errors that may occur
+        return None
+    
 def banner():
     """Prints out a banner."""
 
@@ -119,6 +198,35 @@ def banner():
     """
     )
 
+    git_info = get_git_info()    
+    if git_info:
+        print(f"# Git information:")
+        print(f"#      Remote URL: {git_info['remote_url']:<24}")
+        print(f"#          Branch: {git_info['branch_name']:<24}")
+        print(f"#     Last Commit: {git_info['last_commit']:<24}")        
+        print(f"#   Commit Author: {git_info['commit_author']:<24}")
+        print(f"#  Commit Message: {git_info['commit_message']:<24}")
+        print(f"#     Commit Date: {git_info['commit_date']:<24}")
+    else:
+        print("Unable to retrieve Git information.")
+    print()
+
+    system_info = get_system_info()
+    
+    if system_info:
+        print(f"# System information:")
+        print(f"#     Current Folder: {system_info['current_folder']}")
+        print(f"#       Machine Name: {system_info['machine_name']}")
+        print(f"#               FQDN: {system_info['fqdn']}")
+        print(f"#   Operating System: {system_info['os_name']}")
+        print(f"#         OS Version: {system_info['os_version']}")
+        print(f"#          Processor: {system_info['processor']}")
+        print(f"#     Number of CPSs: {system_info['num_nodes']}")
+        print(f"#          User Name: {system_info['user_name']}")
+        
+    else:
+        print("Unable to retrieve system information.")
+    print()
 
 def info(text="", show=True):
     """Prints a message.
