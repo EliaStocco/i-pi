@@ -316,6 +316,11 @@ class Properties:
                 "help": "The value of the conserved energy quantity per bead when an external electric field is applied.",
                 "func": self.get_Econserved,
             },
+            "eda": {
+                "dimension": "energy",
+                "help": "The value of the energy contribution due to the external electric field.",
+                "func": self.get_eda,
+            },
             "energy": {
                 "dimension": "energy",
                 "help": "The value of the total energy per bead.",
@@ -1467,12 +1472,16 @@ class Properties:
         """Returns the conserved quantity of the system."""
         return self.ensemble.econs / float(self.beads.nbeads)
 
-    def get_Econserved(self, atom="", bead="", nm="", return_count=False):
-        """Returns the conserved quantity of the system when an external electric field is applied."""
+    def get_eda(self, atom="", bead="", nm="", return_count=False):
         dipole = self.get_dipole(atom, bead, nm, return_count)
         Efield = self.get_Efield(atom, bead, nm, return_count)
-        cons = self.get_conserved(atom, bead, nm, return_count)
         eda = float(dipole @ Efield)
+        return eda
+    
+    def get_Econserved(self, atom="", bead="", nm="", return_count=False):
+        """Returns the conserved quantity of the system when an external electric field is applied."""
+        cons = self.get_conserved(atom, bead, nm, return_count)
+        eda = self.get_eda(atom, bead, nm, return_count)
         return cons - eda
 
     def get_energy(self, atom="", bead="", nm="", return_count=False):
