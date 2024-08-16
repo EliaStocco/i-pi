@@ -164,7 +164,7 @@ def get_git_info():
             "commit_message": commit_message,
         }
 
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         # Handle the case where the git command fails
         return None
 
@@ -206,7 +206,7 @@ def get_system_info():
             "user_name": user_name,
         }
 
-    except Exception as e:
+    except Exception:
         # Handle any errors that may occur
         return None
 
