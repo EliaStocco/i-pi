@@ -1473,7 +1473,7 @@ class Properties:
         Efield = self.get_Efield(atom, bead, nm, return_count)
         cons = self.get_conserved(atom, bead, nm, return_count)
         eda = float(dipole @ Efield)
-        return cons + eda
+        return cons - eda
 
     def get_energy(self, atom="", bead="", nm="", return_count=False):
         """Calculates the physical system total energy as the sum of the potential and kinetic energies."""
