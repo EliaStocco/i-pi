@@ -1477,7 +1477,7 @@ class Properties:
         Efield = self.get_Efield(atom, bead, nm, return_count)
         eda = float(dipole @ Efield)
         return eda
-    
+
     def get_Econserved(self, atom="", bead="", nm="", return_count=False):
         """Returns the conserved quantity of the system when an external electric field is applied."""
         cons = self.get_conserved(atom, bead, nm, return_count)

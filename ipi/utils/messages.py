@@ -13,7 +13,14 @@ import socket
 import platform
 import multiprocessing
 
-__all__ = ["Verbosity", "verbosity", "banner", "info", "warning","get_identication_info"]
+__all__ = [
+    "Verbosity",
+    "verbosity",
+    "banner",
+    "info",
+    "warning",
+    "get_identication_info",
+]
 
 
 VERB_QUIET = 0
@@ -100,26 +107,53 @@ class Verbosity(object):
 
 verbosity = Verbosity()
 
+
 def get_git_info():
     try:
         # Get the current branch name
-        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
-        
+        branch_name = (
+            subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+            .strip()
+            .decode("utf-8")
+        )
+
         # Get the last commit hash
-        last_commit = subprocess.check_output(["git", "log", "-1", "--format=%H"]).strip().decode('utf-8')
+        last_commit = (
+            subprocess.check_output(["git", "log", "-1", "--format=%H"])
+            .strip()
+            .decode("utf-8")
+        )
 
         # Get the remote repository URL
-        remote_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"]).strip().decode('utf-8')
+        remote_url = (
+            subprocess.check_output(["git", "config", "--get", "remote.origin.url"])
+            .strip()
+            .decode("utf-8")
+        )
 
         # Get commit author
-        commit_author = subprocess.check_output(["git", "log", "-1", "--format=%an"]).strip().decode('utf-8')
+        commit_author = (
+            subprocess.check_output(["git", "log", "-1", "--format=%an"])
+            .strip()
+            .decode("utf-8")
+        )
 
         # Get commit date
         # Get commit date in ISO 8601 format
-        commit_date = subprocess.check_output(["git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M:%S"]).strip().decode('utf-8')
+        commit_date = (
+            subprocess.check_output(
+                ["git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M:%S"]
+            )
+            .strip()
+            .decode("utf-8")
+        )
 
         # Get commit message
-        commit_message = subprocess.check_output(["git", "log", "-1", "--format=%s"]).strip().decode('utf-8')
+        commit_message = (
+            subprocess.check_output(["git", "log", "-1", "--format=%s"])
+            .strip()
+            .decode("utf-8")
+        )
 
         return {
             "branch_name": branch_name,
@@ -127,12 +161,13 @@ def get_git_info():
             "remote_url": remote_url,
             "commit_author": commit_author,
             "commit_date": commit_date,
-            "commit_message": commit_message
+            "commit_message": commit_message,
         }
 
     except subprocess.CalledProcessError as e:
         # Handle the case where the git command fails
         return None
+
 
 def get_system_info():
     try:
@@ -168,32 +203,33 @@ def get_system_info():
             "os_version": os_version,
             "processor": processor,
             "num_nodes": num_nodes,
-            "user_name": user_name
+            "user_name": user_name,
         }
 
     except Exception as e:
         # Handle any errors that may occur
         return None
-    
+
+
 def get_identication_info():
-    git_info = get_git_info()    
+    git_info = get_git_info()
     system_info = get_system_info()
-    
+
     info_string = ""
-    
+
     if git_info:
         info_string += "# Git information:\n"
         info_string += f"#      Remote URL: {git_info['remote_url']:<24}\n"
         info_string += f"#          Branch: {git_info['branch_name']:<24}\n"
-        info_string += f"#     Last Commit: {git_info['last_commit']:<24}\n"        
+        info_string += f"#     Last Commit: {git_info['last_commit']:<24}\n"
         info_string += f"#   Commit Author: {git_info['commit_author']:<24}\n"
         info_string += f"#  Commit Message: {git_info['commit_message']:<24}\n"
         info_string += f"#     Commit Date: {git_info['commit_date']:<24}\n"
     else:
         info_string += "# Unable to retrieve Git information.\n"
-    
+
     info_string += "#\n"
-    
+
     if system_info:
         info_string += "# System information:\n"
         info_string += f"#     Current Folder: {system_info['current_folder']}\n"
@@ -206,9 +242,10 @@ def get_identication_info():
         info_string += f"#          User Name: {system_info['user_name']}\n"
     else:
         info_string += "# Unable to retrieve system information.\n"
-    
+
     return info_string
-    
+
+
 def banner():
     """Prints out a banner."""
 
@@ -233,7 +270,8 @@ def banner():
     )
 
     info_string = get_identication_info()
-    print(info_string+"\n")
+    print(info_string + "\n")
+
 
 def info(text="", show=True):
     """Prints a message.

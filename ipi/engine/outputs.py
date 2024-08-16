@@ -188,7 +188,7 @@ class PropertyOutput(BaseOutput):
         super(PropertyOutput, self).bind(mode, system)
 
     def print_header(self):
-        
+
         info_string = get_identication_info()
         self.out.write(info_string + "\n")
 
@@ -215,7 +215,6 @@ class PropertyOutput(BaseOutput):
             if "help" in prop:
                 ohead += ": " + prop["help"]
             self.out.write(ohead + "\n")
-        
 
     def write(self):
         """Outputs the required properties of the system.
