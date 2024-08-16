@@ -22,6 +22,7 @@ from ipi.utils.io import open_backup
 from ipi.engine.properties import getkey
 from ipi.engine.atoms import *
 from ipi.engine.cell import *
+from ipi.utils.messages import get_identication_info
 
 __all__ = [
     "PropertyOutput",
@@ -187,6 +188,10 @@ class PropertyOutput(BaseOutput):
         super(PropertyOutput, self).bind(mode, system)
 
     def print_header(self):
+        
+        info_string = get_identication_info()
+        self.out.write(info_string + "\n")
+
         # print nice header if information is available on the properties
         ohead = "# Date and Time: {}".format(datetime.now().strftime("%Y-%m-%d %H:%M"))
         self.out.write(ohead + "\n")
@@ -210,6 +215,7 @@ class PropertyOutput(BaseOutput):
             if "help" in prop:
                 ohead += ": " + prop["help"]
             self.out.write(ohead + "\n")
+        
 
     def write(self):
         """Outputs the required properties of the system.

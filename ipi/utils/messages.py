@@ -13,7 +13,7 @@ import socket
 import platform
 import multiprocessing
 
-__all__ = ["Verbosity", "verbosity", "banner", "info", "warning"]
+__all__ = ["Verbosity", "verbosity", "banner", "info", "warning","get_identication_info"]
 
 
 VERB_QUIET = 0
@@ -175,6 +175,40 @@ def get_system_info():
         # Handle any errors that may occur
         return None
     
+def get_identication_info():
+    git_info = get_git_info()    
+    system_info = get_system_info()
+    
+    info_string = ""
+    
+    if git_info:
+        info_string += "# Git information:\n"
+        info_string += f"#      Remote URL: {git_info['remote_url']:<24}\n"
+        info_string += f"#          Branch: {git_info['branch_name']:<24}\n"
+        info_string += f"#     Last Commit: {git_info['last_commit']:<24}\n"        
+        info_string += f"#   Commit Author: {git_info['commit_author']:<24}\n"
+        info_string += f"#  Commit Message: {git_info['commit_message']:<24}\n"
+        info_string += f"#     Commit Date: {git_info['commit_date']:<24}\n"
+    else:
+        info_string += "# Unable to retrieve Git information.\n"
+    
+    info_string += "#\n"
+    
+    if system_info:
+        info_string += "# System information:\n"
+        info_string += f"#     Current Folder: {system_info['current_folder']}\n"
+        info_string += f"#       Machine Name: {system_info['machine_name']}\n"
+        info_string += f"#               FQDN: {system_info['fqdn']}\n"
+        info_string += f"#   Operating System: {system_info['os_name']}\n"
+        info_string += f"#         OS Version: {system_info['os_version']}\n"
+        info_string += f"#          Processor: {system_info['processor']}\n"
+        info_string += f"#     Number of CPSs: {system_info['num_nodes']}\n"
+        info_string += f"#          User Name: {system_info['user_name']}\n"
+    else:
+        info_string += "# Unable to retrieve system information.\n"
+    
+    return info_string
+    
 def banner():
     """Prints out a banner."""
 
@@ -198,35 +232,8 @@ def banner():
     """
     )
 
-    git_info = get_git_info()    
-    if git_info:
-        print(f"# Git information:")
-        print(f"#      Remote URL: {git_info['remote_url']:<24}")
-        print(f"#          Branch: {git_info['branch_name']:<24}")
-        print(f"#     Last Commit: {git_info['last_commit']:<24}")        
-        print(f"#   Commit Author: {git_info['commit_author']:<24}")
-        print(f"#  Commit Message: {git_info['commit_message']:<24}")
-        print(f"#     Commit Date: {git_info['commit_date']:<24}")
-    else:
-        print("Unable to retrieve Git information.")
-    print()
-
-    system_info = get_system_info()
-    
-    if system_info:
-        print(f"# System information:")
-        print(f"#     Current Folder: {system_info['current_folder']}")
-        print(f"#       Machine Name: {system_info['machine_name']}")
-        print(f"#               FQDN: {system_info['fqdn']}")
-        print(f"#   Operating System: {system_info['os_name']}")
-        print(f"#         OS Version: {system_info['os_version']}")
-        print(f"#          Processor: {system_info['processor']}")
-        print(f"#     Number of CPSs: {system_info['num_nodes']}")
-        print(f"#          User Name: {system_info['user_name']}")
-        
-    else:
-        print("Unable to retrieve system information.")
-    print()
+    info_string = get_identication_info()
+    print(info_string+"\n")
 
 def info(text="", show=True):
     """Prints a message.
