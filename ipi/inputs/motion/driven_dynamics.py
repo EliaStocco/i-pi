@@ -127,6 +127,7 @@ class InputBEC(InputArray):
 
     def store(self, bec):
         super(InputBEC, self).store(bec.bec)
+        self.mode.store(bec.mode)
 
     def parse(self, xml=None, text=""):
         """Reads the data for an array from an xml file.
@@ -146,10 +147,23 @@ class InputBEC(InputArray):
             self.value = np.full((0, 3), np.nan)
         else:
             raise ValueError("error in InputBEC.parse")
+        self.mode.store(mode)
 
     def fetch(self):
-        bec = super(InputBEC, self).fetch()
-        return BEC(cbec=self.mode.fetch() == "driver", bec=bec.reshape((-1, 3)))
+        """Returns the stored data in the user defined units."""
+
+        bec = super(InputArray, self).fetch()
+
+        # if the shape is not specified, assume the array is linear.
+        if self.shape.fetch() == (0,):
+            bec = np.resize(bec, 0).copy()
+        else:
+            if len(bec) == 0:
+                bec = np.full(self.shape.fetch(), np.nan)
+            else:
+                bec = bec.reshape(self.shape.fetch()).copy()
+        mode = self.mode.fetch()
+        return BEC(cbec=mode == "driver", bec=bec.reshape((-1, 3)), mode=mode)
 
 
 class InputDrivenDynamics(InputDynamics):

@@ -105,6 +105,7 @@ class Simulation:
 
         # pipe between the components of the simulation
         simulation.bind(read_only)
+        # simulation.syslist[0].motion.Born_Charges.mode == 'driver'
 
         # echo the input file if verbose enough
         if verbosity.low:

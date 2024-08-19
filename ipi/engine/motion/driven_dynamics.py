@@ -174,11 +174,12 @@ class BEC:
     # The BEC tensors Z^* can be given to i-PI by an external driver through the extras strings in the forces
     # or they can be kept fixed during the dynamics: in this case you can provide them through a txt file.
 
-    def __init__(self, cbec=None, bec=None):
+    def __init__(self, cbec=None, bec=None, mode="none"):
         self.cbec = cbec
         if bec is None:
             bec = np.full((0, 3), np.nan)
         self._bec = depend_array(name="bec", value=bec)
+        self.mode = mode
         pass
 
     def bind(self, ensemble, enstype):
@@ -207,6 +208,7 @@ class BEC:
     def store(self, bec):
         super(BEC, self).store(bec)
         self.cbec.store(bec.cbec)
+        self.mode.store(bec.mode)
 
     def _get_driver_BEC(self, bead=None):
         """Return the BEC tensors (in cartesian coordinates), when computed by the driver"""

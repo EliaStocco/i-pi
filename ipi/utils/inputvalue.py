@@ -1273,7 +1273,6 @@ class InputArray(InputValue):
         Returns:
            A string giving the stored value in the appropriate xml format.
         """
-
         rstr = ""
         if len(self.value) > ELPERLINE:
             rstr += "\n" + indent + " [ "
