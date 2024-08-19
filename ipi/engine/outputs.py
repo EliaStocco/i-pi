@@ -190,7 +190,7 @@ class PropertyOutput(BaseOutput):
     def print_header(self):
 
         info_string = get_identication_info()
-        self.out.write(info_string + "\n")
+        self.out.write(info_string)
 
         # print nice header if information is available on the properties
         ohead = "# Date and Time: {}".format(datetime.now().strftime("%Y-%m-%d %H:%M"))

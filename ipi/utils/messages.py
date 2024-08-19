@@ -112,28 +112,50 @@ def get_git_info():
     try:
         # Get the current branch name
         branch_name = (
-            subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+            subprocess.check_output(
+                [
+                    "git",
+                    "-C",
+                    os.path.dirname(__file__),
+                    "rev-parse",
+                    "--abbrev-ref",
+                    "HEAD",
+                ]
+            )
             .strip()
             .decode("utf-8")
         )
 
         # Get the last commit hash
         last_commit = (
-            subprocess.check_output(["git", "log", "-1", "--format=%H"])
+            subprocess.check_output(
+                ["git", "-C", os.path.dirname(__file__), "log", "-1", "--format=%H"]
+            )
             .strip()
             .decode("utf-8")
         )
 
         # Get the remote repository URL
         remote_url = (
-            subprocess.check_output(["git", "config", "--get", "remote.origin.url"])
+            subprocess.check_output(
+                [
+                    "git",
+                    "-C",
+                    os.path.dirname(__file__),
+                    "config",
+                    "--get",
+                    "remote.origin.url",
+                ]
+            )
             .strip()
             .decode("utf-8")
         )
 
         # Get commit author
         commit_author = (
-            subprocess.check_output(["git", "log", "-1", "--format=%an"])
+            subprocess.check_output(
+                ["git", "-C", os.path.dirname(__file__), "log", "-1", "--format=%an"]
+            )
             .strip()
             .decode("utf-8")
         )
@@ -142,7 +164,15 @@ def get_git_info():
         # Get commit date in ISO 8601 format
         commit_date = (
             subprocess.check_output(
-                ["git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M:%S"]
+                [
+                    "git",
+                    "-C",
+                    os.path.dirname(__file__),
+                    "log",
+                    "-1",
+                    "--format=%cd",
+                    "--date=format:%Y-%m-%d %H:%M:%S",
+                ]
             )
             .strip()
             .decode("utf-8")
@@ -150,7 +180,9 @@ def get_git_info():
 
         # Get commit message
         commit_message = (
-            subprocess.check_output(["git", "log", "-1", "--format=%s"])
+            subprocess.check_output(
+                ["git", "-C", os.path.dirname(__file__), "log", "-1", "--format=%s"]
+            )
             .strip()
             .decode("utf-8")
         )
@@ -170,45 +202,68 @@ def get_git_info():
 
 
 def get_system_info():
+    # Get the current working directory
+    current_folder = os.getcwd()
+
+    # Get the machine name (hostname)
+    machine_name = ""
     try:
-        # Get the current working directory
-        current_folder = os.getcwd()
-
-        # Get the machine name (hostname)
         machine_name = socket.gethostname()
-
-        # Get the system's fully qualified domain name (FQDN)
-        fqdn = socket.getfqdn()
-
-        # Get the operating system name
-        os_name = platform.system()
-
-        # Get the operating system version
-        os_version = platform.version()
-
-        # Get the processor name
-        processor = platform.processor()
-
-        # Get the number of CPUs or nodes available
-        num_nodes = multiprocessing.cpu_count()
-
-        # Get the user name
-        user_name = os.getlogin()
-
-        return {
-            "current_folder": current_folder,
-            "machine_name": machine_name,
-            "fqdn": fqdn,
-            "os_name": os_name,
-            "os_version": os_version,
-            "processor": processor,
-            "num_nodes": num_nodes,
-            "user_name": user_name,
-        }
-
     except Exception:
-        # Handle any errors that may occur
-        return None
+        pass
+
+    # Get the system's fully qualified domain name (FQDN)
+    fqdn = ""
+    try:
+        fqdn = socket.getfqdn()
+    except Exception:
+        pass
+
+    # Get the operating system name
+    os_name = ""
+    try:
+        os_name = platform.system()
+    except Exception:
+        pass
+
+    # Get the operating system version
+    os_version = ""
+    try:
+        os_version = platform.version()
+    except Exception:
+        pass
+
+    # Get the processor name
+    processor = ""
+    try:
+        processor = platform.processor()
+    except Exception:
+        pass
+
+    # Get the number of CPUs or nodes available
+    num_nodes = 0
+    try:
+        num_nodes = multiprocessing.cpu_count()
+    except Exception:
+        pass
+
+    # Get the user name
+    user_name = ""
+    try:
+        user_name = os.getlogin()
+    except Exception:
+        pass
+
+    return {
+        "current_folder": current_folder,
+        "machine_name": machine_name,
+        "fqdn": fqdn,
+        "os_name": os_name,
+        "os_version": os_version,
+        "processor": processor,
+        "num_nodes": num_nodes,
+        "user_name": user_name,
+    }
 
 
 def get_identication_info():
@@ -270,7 +325,7 @@ def banner():
     )
 
     info_string = get_identication_info()
-    print(info_string + "\n")
+    print(info_string)
 
 
 def info(text="", show=True):
