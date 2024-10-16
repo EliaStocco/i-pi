@@ -118,6 +118,10 @@ class InputBEC(InputArray):
     default_help = "Deals with the Born Effective Charges tensors"
     default_label = "BEC"
 
+    # type hint and static programming
+    mode: InputAttribute
+    shape: InputAttribute
+
     def __init__(self, help=None, dimension=None, units=None, default=None, dtype=None):
         """Initializes InputBEC.
 
@@ -127,6 +131,9 @@ class InputBEC(InputArray):
 
     def store(self, bec):
         super(InputBEC, self).store(bec.bec)
+        # The next line is neessary
+        # because `InputArray.store` sets `self.mode` to "manual":
+        # self.mode.store("manual")
         self.mode.store(bec.mode)
 
     def parse(self, xml=None, text=""):
@@ -147,21 +154,26 @@ class InputBEC(InputArray):
             self.value = np.full((0, 3), np.nan)
         else:
             raise ValueError("error in InputBEC.parse")
+        # I am not sure this line is actually necessary.
+        # I am using `store` in `parse` as done in `InputArray.parse`
         self.mode.store(mode)
 
     def fetch(self):
         """Returns the stored data in the user defined units."""
-
         bec = super(InputArray, self).fetch()
-
         # if the shape is not specified, assume the array is linear.
         if self.shape.fetch() == (0,):
             bec = np.resize(bec, 0).copy()
         else:
             if len(bec) == 0:
+                # if the array is empty create an empty array
                 bec = np.full(self.shape.fetch(), np.nan)
             else:
+                # if the array is not empty reshape it
                 bec = bec.reshape(self.shape.fetch()).copy()
+        # fetch `mode` and give it to `BEC`.
+        # It is necessary that `BEC` has a `mode` attribute otherwise this value will not be
+        # correctly save to a RESTART file.
         mode = self.mode.fetch()
         return BEC(cbec=mode == "driver", bec=bec.reshape((-1, 3)), mode=mode)
 
