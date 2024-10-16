@@ -293,7 +293,7 @@ def get_identication_info():
         info_string += f"#   Operating System: {system_info['os_name']}\n"
         info_string += f"#         OS Version: {system_info['os_version']}\n"
         info_string += f"#          Processor: {system_info['processor']}\n"
-        info_string += f"#     Number of CPSs: {system_info['num_nodes']}\n"
+        info_string += f"#     Number of CPUs: {system_info['num_nodes']}\n"
         info_string += f"#          User Name: {system_info['user_name']}\n"
     else:
         info_string += "# Unable to retrieve system information.\n"
