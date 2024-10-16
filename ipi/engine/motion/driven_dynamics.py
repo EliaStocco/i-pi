@@ -174,6 +174,8 @@ class BEC:
     # The BEC tensors Z^* can be given to i-PI by an external driver through the extras strings in the forces
     # or they can be kept fixed during the dynamics: in this case you can provide them through a txt file.
 
+    ASR_THRESHOLD = 1e-8
+
     def __init__(self, cbec=None, bec=None, mode="none"):
         self.cbec = cbec
         if bec is None:
@@ -239,7 +241,7 @@ class BEC:
                 msg + ": you should not get into this functon if 'cbec' is False."
             )
 
-        BEC = np.full((self.nbeads, 3 * self.natoms, 3), np.nan)
+        Z = np.full((self.nbeads, 3 * self.natoms, 3), np.nan)
         for n in range(self.nbeads):
             bec = np.asarray(self.forces.extras["BEC"][n])
 
@@ -253,17 +255,22 @@ class BEC:
                     msg
                     + ": BEC tensors with wrong shape. They should have 3 components."
                 )
-            sum_rule = np.asarray(bec.reshape((self.natoms, 3, 3)).sum(axis=0))
-            if not np.allclose(sum_rule, 0):
+            sum_rule: np.ndarray = (
+                np.asarray(bec.reshape((self.natoms, 3, 3)).sum(axis=0)) / self.natoms
+            )
+            if not np.allclose(sum_rule, 0, atol=BEC.ASR_THRESHOLD):
                 raise ValueError(
-                    msg
-                    + ": BEC tensors do not satisfy (charge conservation) sum rule. The sum over all the atoms should be zero, but is {}".format(
-                        sum_rule.flatten().tolist()
+                    msg + ": "
+                    "BEC tensors do not satisfy acoustic sum rule/charge conservation.\n\
+                    The sum over all the atoms should be zero, but it has exceeded the threshold of {:.e} per atom.\n\
+                    The mean over all the atoms is {}.\n\
+                    Check your driver or modify `BEC.ASR_THRESHOLD` in `ipi/engine/motion/driven_dynamics.py`.".format(
+                        BEC.ASR_THRESHOLD, sum_rule.flatten().tolist()
                     )
                 )
-            BEC[n, :, :] = np.copy(bec)
+            Z[n, :, :] = np.copy(bec)
 
-        return BEC
+        return Z
 
     def _get_fixed_BEC(self):
         """Return the BEC tensors (in cartesian coordinates).
