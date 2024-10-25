@@ -284,13 +284,13 @@ class Properties:
                 "func": (lambda: np.asarray(h2abc_deg(self.cell.h))),
             },
             "Efield": {
-                "dimension": "atomic_unit",
+                "dimension": "electric-field",
                 "help": "The external applied electric field (x,y,z components in cartesian axes).",
                 "size": 3,
                 "func": self.get_Efield,
             },
             "Eenvelope": {
-                "dimension": "atomic_unit",
+                "dimension": "undefined",
                 "help": "The (gaussian) envelope function of the external applied electric field (values go from 0 to 1).",
                 "func": (
                     lambda: (
